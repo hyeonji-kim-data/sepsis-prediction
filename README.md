@@ -14,11 +14,11 @@ Predicted death for ICU sepsis patients from their first 24 hours of data, then 
 
 ## 1. Goal
 
-Sepsis is a leading cause of death in intensive care units, and how early high-risk patients are recognized strongly affects survival. Using data on 911 ICU sepsis patients (the worst value of each measurement during the first 24 hours after admission), this project asked:
+Sepsis is a leading cause of death in intensive care units, making the early identification of high-risk patients critical. This project asked:
 
-1. Can death be predicted from first-day information alone?
-2. How should the decision threshold be set so that as few deaths as possible are missed?
-3. Which clinical measurements does the model rely on most?
+1. Can in-hospital mortality be predicted using only data from the first 24 hours?
+2. How should the decision threshold be set to minimize missed deaths?
+3. Which clinical variables contribute most to the model's predictions?
 
 ## 2. Data
 
@@ -100,7 +100,7 @@ The team compared 12 models and selected CatBoost as the best performer.
 
 **Models**
 - **TabNet:** a deep learning model for tables that chooses which variables to look at in each step (`pytorch-tabnet`).
-- **FT-Transformer:** applies the transformer architecture to tabular data. The original team code used a Keras implementation; I switched to `rtdl_revisiting_models`, the official PyTorch implementation by the paper's authors (Gorishniy et al., 2021). The model structure is the same.
+- **FT-Transformer:** applies the transformer architecture to tabular data. I used the official PyTorch implementation by the paper's authors (Gorishniy et al., 2021).
 
 **How the 637 training patients were used**
 
@@ -112,8 +112,7 @@ The test set (274) was used only for the final evaluation. The 637 training pati
 | Optuna tuning | 4 of 5 folds (~510) | the remaining fold (also the scored fold) | `objective()` |
 | Decision threshold | 80% of 4 folds (~408) | 20% of 4 folds (~102) | `oof_probs()` |
 
-The final model was not retrained on all 637 patients, because early stopping needs held-out data. The 128-patient validation set is used only for early stopping; an earlier version also chose the threshold on it, which proved unstable (see Results).
-
+The final model was not retrained on all 637 patients because early stopping needs held-out data. The 128-patient validation set is used only for early stopping.
 **Training**
 - Early stopping: max 200 epochs, stop after 20 epochs without improvement in validation AUC.
 - Each model was trained with **five random seeds** (0–4). AUC is reported as the mean across seeds; threshold-based results use the **average of the five seeds' predictions**.
@@ -124,7 +123,7 @@ The final model was not retrained on all 637 patients, because early stopping ne
 - FT-Transformer: the default configuration from the paper (3 blocks, `d_block` 192, learning rate 1e-4), batch size 128.
 
 **Tuning (Optuna)**
-- 50 trials per model with the TPE sampler; a median pruner stopped clearly worse trials early.
+- 50 trials per model, set to keep tuning time manageable. The TPE sampler was used, and a median pruner stopped clearly worse trials early.
 - Each setting was scored by stratified 5-fold cross-validation AUC on the 637 training patients; the test set was never used.
 - Search space: TabNet (`n_d`, steps, gamma, sparsity penalty, learning rate, mask type, batch size); FT-Transformer (blocks, `d_block`, three dropout rates, learning rate, weight decay, batch size). See `objective()` in each script.
 - Best 5-fold CV AUC: TabNet 0.815, FT-Transformer 0.841. These are slightly optimistic because early stopping used the scored fold, so they were used only to compare settings.
@@ -175,7 +174,7 @@ The tuned FT-Transformer caught 55% of deaths at 0.5. With the cross-validated t
 </p>
 
 ### A threshold chosen on a small validation set was unstable
-In the first version, the threshold was chosen on the 128-patient validation set (39 deaths). It ranged from 0.03 to 0.74 across seeds, and recall differed between two computers running the same code. Choosing it from cross-validated predictions for all 637 training patients and averaging the five seeds made the result consistent (0.20 and 0.22 on the two machines).
+In the first version, the threshold was chosen on the 128-patient validation set (39 deaths). It ranged from 0.03 to 0.74 across seeds, and recall differed between two computers running the same code. Choosing it from cross-validated predictions for all 637 training patients and averaging the five seeds made the result consistent.
 
 ### The two models relied on different variables
 - TabNet relied most on a severity score (APACHE II), which also ranked third in the team's feature selection. After tuning, APACHE II was first in both permutation importance (AUC drop 0.064, more than three times the next variable) and TabNet's own mask importance.
@@ -209,7 +208,7 @@ python ftt_tuned.py
 ```
 
 Each script saves its figures and result tables to `figures/<model name>/`.
-The tuned scripts use the saved best settings by default (`RUN_OPTUNA = False`). Set `RUN_OPTUNA = True` to run the tuning again (about 15 minutes for TabNet and 1–2 hours for FT-Transformer on CPU); only then are `06_optuna_history.png` and `optuna_trials.csv` created.
+The tuned scripts use the saved best settings by default (`RUN_OPTUNA = False`). Set `RUN_OPTUNA = True` to run the tuning again; only then are `06_optuna_history.png` and `optuna_trials.csv` created.
 
 Note: results can differ slightly between computers because of PyTorch nondeterminism. AUC was stable; single-seed thresholds were not, which is why the five-seed average is reported.
 
@@ -244,4 +243,4 @@ Each `figures/<model name>/` folder contains:
 
 ## Note on AI assistance
 
-I used AI tools ([tool names]) for coding help, including switching FT-Transformer to the PyTorch implementation and adding the cross-validated threshold, and to translate comments and tidy the code. The modeling choices, threshold analysis and interpretation are my own.
+I used AI tools ([tool names]) for coding help to tidy the code. The modeling choices, threshold analysis and interpretation are my own.

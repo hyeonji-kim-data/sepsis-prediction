@@ -1,0 +1,14 @@
+,mean,std
+AUC (0.5),0.684,0.0289
+Accuracy (0.5),0.6423,0.0307
+Precision (0.5),0.3987,0.0233
+Recall (0.5),0.6189,0.1511
+Specificity (0.5),0.651,0.0902
+F1 Score (0.5),0.4762,0.0495
+Threshold (CV threshold),0.3632,0.1689
+AUC (CV threshold),0.684,0.0289
+Accuracy (CV threshold),0.5321,0.1441
+Precision (CV threshold),0.3521,0.049
+Recall (CV threshold),0.7189,0.2108
+Specificity (CV threshold),0.463,0.2699
+F1 Score (CV threshold),0.4521,0.0343

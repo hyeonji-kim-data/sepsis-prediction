@@ -5,10 +5,10 @@ Precision (0.5),0.5157,0.0313
 Recall (0.5),0.5676,0.052
 Specificity (0.5),0.8,0.0359
 F1 Score (0.5),0.5378,0.018
-Threshold (CCV threshold),0.3202,0.1558
-AUC (CCV threshold),0.7709,0.0059
-Accuracy (CCV threshold),0.6869,0.045
-Precision (CCV threshold),0.4605,0.0479
-Recall (CCV threshold),0.6946,0.1113
-Specificity (CCV threshold),0.684,0.1025
-F1 Score (CCV threshold),0.5443,0.0077
+Threshold (CV threshold),0.3202,0.1558
+AUC (CV threshold),0.7709,0.0059
+Accuracy (CV threshold),0.6869,0.045
+Precision (CV threshold),0.4605,0.0479
+Recall (CV threshold),0.6946,0.1113
+Specificity (CV threshold),0.684,0.1025
+F1 Score (CV threshold),0.5443,0.0077
